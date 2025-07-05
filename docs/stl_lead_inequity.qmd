@@ -1,0 +1,35 @@
+library(tidyverse)
+library(janitor)
+
+stl_lead <- read.csv("/Users/nik/Desktop/eds-221-day1-activity/data/stl_blood_lead.csv") %>%
+    clean_names()
+
+skimr::skim(stl_lead)
+stl_lead %>%
+    select(-c(name_lsad)) %>%
+    GGally::ggpairs()
+
+data.table::setDT(stl_lead)
+
+
+stl_lead_prop <- stl_lead[, prop_white := white / total_pop * 100]
+
+
+ggplot(stl_lead_prop, aes(x = prop_white, y = pct_elevated)) +
+    geom_point(size = 3, alpha = 0.5, color = "blue") +
+    geom_smooth(method = "lm", color = "red", se = FALSE) +
+    labs(
+        title = "Percentage of Children with Elevated Blood Lead Levels vs. Percent White",
+        x = "Percent White",
+        y = "Percent with Elevated Blood Lead Levels"
+    ) +
+    theme_minimal() -> stl_lead_plot
+
+ggplot(stl_lead_prop, aes(x = pct_elevated)) +
+    geom_histogram(bins = 30, fill = "blue", color = "black", alpha = 0.7) +
+    labs(
+        title = "Distribution of Percent Elevated Blood Lead Levels",
+        x = "Percent with Elevated Blood Lead Levels",
+        y = "Count"
+    ) +
+    theme_minimal() -> stl_lead_hist
